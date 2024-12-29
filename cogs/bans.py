@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from db.database import Database
+from db.database import PunishmentsDatabase
 from embeds import punishments as embeds
 from utils.logger import Logger
 
@@ -10,7 +10,7 @@ logger = Logger.get_logger()
 class BanCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.db = Database()
+        self.db = PunishmentsDatabase()
 
     @commands.slash_command(description="Забанить пользователя")
     async def ban(
@@ -30,7 +30,7 @@ class BanCog(commands.Cog):
         if duration is None:
             duration = "forever"
 
-        self.db.add_ban(user.id, reason, duration)
+        self.db.add_punishment(user.id, "ban", reason, duration)
         logger.info(f"{ctx.author.name} забанил {user.name} на {duration} по причине: {reason}")
 
         try:
@@ -46,8 +46,8 @@ class BanCog(commands.Cog):
             logger.error(f"Сообщение о блокировке {user.name} ({user.id}) не получилось отправить в ЛС ({e})")
             await ctx.edit(
                 embeds=[embeds.mod_ban(duration, reason), embeds.error(str(e), "Не удалось отправить сообщение в ЛС")])
-        finally:
-            await user.ban()
+        # finally:
+        #     await user.ban()
 
 def setup(bot):
     bot.add_cog(BanCog(bot))
