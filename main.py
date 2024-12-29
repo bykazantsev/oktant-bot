@@ -6,7 +6,6 @@ from utils.logger import Logger
 logger = Logger.get_logger()
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
-
 bot = discord.Bot()
 
 @bot.event
