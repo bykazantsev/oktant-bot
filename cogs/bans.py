@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from db.database import Database
+from embeds import punishments as embeds
 from utils.logger import Logger
 
 logger = Logger.get_logger()
@@ -22,25 +23,31 @@ class BanCog(commands.Cog):
     ):
         await ctx.response.defer(ephemeral=True)
 
+        if ctx.guild is None:
+            await ctx.edit(content="Команду нельзя использовать в ЛС!")
+            return
+
         if duration is None:
             duration = "forever"
 
         self.db.add_ban(user.id, reason, duration)
         logger.info(f"{ctx.author.name} забанил {user.name} на {duration} по причине: {reason}")
 
-        embed = discord.Embed(title="Вы были заблокированы", description=f"На сервере {ctx.guild.name}", color=0x9e0000)
-        embed.add_field(name="Срок блокировки", value=duration, inline=True)
-        embed.add_field(name="Причина", value=reason, inline=True)
-        embed.set_footer(text="© Все права не то что зафырканы, они держатся на синей изоленте")
         try:
-            await user.send("sosal?", embed=embed)
+            await user.send(embed=embeds.user_ban(duration, reason, ctx.author.id))
+            await ctx.edit(embed=embeds.mod_ban(duration, reason))
         except discord.errors.Forbidden:
-            logger.info(f"Сообщение о блокировке {user.name} ({user.id}) не получилось отправить в ЛС (discord.errors.Forbidden)")
-            pass
-
-        embed.title = "Выдача блокировки"
-        await ctx.edit(content=f"{user.mention} был забанен на {duration} по причине: {reason}")
-
+            error_message = "Не удалось отправить сообщение в ЛС"
+            logger.info(
+                f"Сообщение о блокировке {user.name} ({user.id}) не получилось отправить в ЛС (discord.errors.Forbidden)")
+            await ctx.edit(
+                embeds=[embeds.mod_ban(duration, reason), embeds.error("discord.errors.Forbidden", error_message)])
+        except Exception as e:
+            logger.error(f"Сообщение о блокировке {user.name} ({user.id}) не получилось отправить в ЛС ({e})")
+            await ctx.edit(
+                embeds=[embeds.mod_ban(duration, reason), embeds.error(str(e), "Не удалось отправить сообщение в ЛС")])
+        finally:
+            await user.ban()
 
 def setup(bot):
     bot.add_cog(BanCog(bot))
