@@ -1,6 +1,10 @@
 import discord
 import os
+
+from discord.ext import commands
 from dotenv import load_dotenv
+
+from locales import embeds
 from utils.logger import Logger
 
 logger = Logger.get_logger()
@@ -15,12 +19,13 @@ async def on_ready():
 
 
 @bot.event
-async def on_application_command_error(context, exception):
-    if str(exception) == "Application Command raised an exception: NotFound: 404 Not Found (error code: 10062): Unknown interaction":
+async def on_application_command_error(ctx: discord.ApplicationContext, error: discord.DiscordException):
+    if isinstance(error, commands.CommandOnCooldown):
         logger.error(
             "Не успели ответить на сообщение за 3 секунды, дискорд ответил на команду \"Приложение не отвечает\"")
     else:
-        logger.error(f"Возникла какая-то проблема при выполнении команды: {exception}")
+        await ctx.respond(embed=embeds.error(error, ctx.command.qualified_name))
+        logger.error(f"Возникла какая-то проблема при выполнении команды: {error}")
 
 
 if __name__ == "__main__":
