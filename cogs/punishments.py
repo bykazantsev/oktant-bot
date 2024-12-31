@@ -47,8 +47,8 @@ class PunishmentsCog(commands.Cog):
             logger.error(f"Сообщение о блокировке {user.name} ({user.id}) не получилось отправить в ЛС ({e})")
             await ctx.edit(
                 embeds=[embeds.mod_ban(duration, reason, ctx.author.guild.name, ctx.author.guild.icon), embeds.error(str(e), "Не удалось отправить сообщение в ЛС")])
-        # finally:
-        #     await user.ban()
+        finally:
+            await user.ban()
 
 
 def parse_duration(duration: str) -> int:
