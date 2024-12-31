@@ -1,3 +1,4 @@
+import datetime
 import sqlite3
 
 class PunishmentsDatabase:
@@ -11,21 +12,28 @@ class PunishmentsDatabase:
             CREATE TABLE IF NOT EXISTS punishments (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER,
+                guild_id INTEGER,
                 punishment_type TEXT,
                 reason TEXT,
-                duration TEXT
+                duration INTEGER,
+                timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                end_timestamp DATETIME
             )
         """)
         self.connection.commit()
 
-    def add_punishment(self, user_id, punishment_type, reason, duration):
-        """Add a new punishment record."""
+    def add_punishment(self, user_id, guild_id, punishment_type, reason, duration):
+        end_timestamp = datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(seconds=duration)
+
         self.cursor.execute(
-            "INSERT INTO punishments (user_id, punishment_type, reason, duration) VALUES (?, ?, ?, ?)",
-            (user_id, punishment_type, reason, duration)
+            "INSERT INTO punishments (user_id, guild_id, punishment_type, reason, duration, end_timestamp) VALUES (?, ?, ?, ?, ?, ?)",
+            (user_id, guild_id, punishment_type, reason, duration, end_timestamp)
         )
         self.connection.commit()
 
+    def delete_punishment(self, punishment_id):
+        self.cursor.execute("DELETE FROM punishments WHERE id = ?", (punishment_id,))
+        self.connection.commit()
     def get_punishments(self):
         """Retrieve all punishments from the database."""
         self.cursor.execute("SELECT * FROM punishments")
