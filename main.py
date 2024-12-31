@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from locales import embeds
 from utils.logger import Logger
 
-logger = Logger.get_logger()
+logger = Logger.create_logger("main.py")
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 bot = discord.Bot()

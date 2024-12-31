@@ -4,7 +4,7 @@ from db.economy import EconomyDatabase
 from locales import embeds
 from utils.logger import Logger
 
-logger = Logger.get_logger()
+logger = Logger.create_logger("Экономика")
 
 class EconomyCog(commands.Cog):
     def __init__(self, bot):
