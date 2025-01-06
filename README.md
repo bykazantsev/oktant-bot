@@ -14,8 +14,8 @@
 
 1. Скопируйте репозиторий:
    ```bash
-   git clone https://github.com/bykazantsev/oktant-Bot
-   cd Harmony-Bot
+   git clone https://github.com/bykazantsev/oktant-bot
+   cd oktant-bot
    ```
 
 2. Установите зависимости:
