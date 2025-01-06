@@ -45,7 +45,7 @@ async def on_message(message: discord.Message):
 async def on_voice_state_update(member: discord.Member, before: discord.VoiceState, after: discord.VoiceState):
     if before.channel is None and after.channel is not None:        
         while after.channel is not None:
-            await asyncio.sleep(15)
+            await asyncio.sleep(600)
             
             voice_state = member.guild.get_member(member.id).voice
             if voice_state and voice_state.channel:
